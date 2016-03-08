@@ -85,7 +85,7 @@ class DrainNode:
 @click.command()
 @click.option('--reverse', envvar='K8SDRAIN_REVERSE', is_flag=True, default=False, help="Reinstate node for scheduling")
 @click.option('--user', envvar='K8SDRAIN_USER', help="Username for api")
-@click.option('--password', envvar='K8SDRAIN_PASSWORD', help="Password for api")
+@click.option('--password', envvar='K8SDRAIN_PASSWORD', prompt=True, hide_input=True, help="Password for api")
 @click.option('--master', envvar='K8SDRAIN_MASTER', help="URL for API Access")
 @click.argument('node')
 def main(reverse, node, user, password, master):
