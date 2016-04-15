@@ -29,14 +29,19 @@ class DrainNode:
         self._session.auth = (user, password)
         self._node = node
         self._reverse = reverse
+        check_auth = self._session.get('{api}/api/v1/nodes'.format(api=self._apiserver), verify=False)
+        if check_auth.status_code == 401:
+            logging.error("Invalid username/password supplied.")
+            sys.exit(1)
 
     def check_node_readiness(self):
         nodeinfo = self._session.get('{api}/api/v1/nodes/{node}'.format(api=self._apiserver, node=self._node),
                                      verify=False)
         node = json.loads(nodeinfo.text)
-        if node['status']['conditions'][0]['status'] != "True":
-            logging.error("Refusing to action upon node {node} which has a \"{status}\" (non-True) status.".format(node=self._node, status=node['status']['conditions'][0]['status']))
-            sys.exit(1)
+        if node['status'] != 'Failure':
+            if node['status']['conditions'][0]['status'] != "True":
+                logging.error("Refusing to action upon node {node}: {msg}".format(node=self._node, status=node['status']['conditions'][0]['status'], msg=node['status']['conditions'][0]['message']))
+                sys.exit(1)
 
     def set_node_schedulable(self, **kwargs):
         patch_spec = {}
